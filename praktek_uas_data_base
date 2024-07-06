@@ -1,0 +1,66 @@
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) UNIQUE,
+    password VARCHAR(255), -- misalnya, panjang yang cukup untuk hash sandi
+    role ENUM('Admin', 'User')
+);
+
+-- Insert minimal 3 data pengguna dengan peran yang berbeda
+INSERT INTO users (username, password, role) VALUES
+('admin_user', 'hashed_admin_password', 'Admin'),
+('regular_user1', 'hashed_regular_password1', 'User'),
+('regular_user2', 'hashed_regular_password2', 'User');
+
+CREATE TABLE profiles (
+    profile_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    full_name VARCHAR(100),
+    birthdate DATE,
+    bio TEXT,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- Insert minimal 3 data profil pengguna
+INSERT INTO profiles (user_id, full_name, birthdate, bio) VALUES
+(1, 'Admin User', '1990-01-01', 'Administrator of the system'),
+(2, 'Regular User 1', '1995-05-15', 'Avid reader and learner'),
+(3, 'Regular User 2', '1988-12-10', 'Passionate about technology and programming');
+
+CREATE TABLE posts (
+    post_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    title VARCHAR(200),
+    content TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- Insert minimal 3 data postingan
+INSERT INTO posts (user_id, title, content) VALUES
+(1, 'Introduction to SQL', 'This is a tutorial on SQL basics.'),
+(2, 'Book Review: "Sapiens"', 'A review of the book "Sapiens" by Yuval Noah Harari.'),
+(3, 'Programming Tips', 'Tips for improving programming skills.');
+
+CREATE TABLE comments (
+    comment_id INT AUTO_INCREMENT PRIMARY KEY,
+    post_id INT,
+    user_id INT,
+    comment_text TEXT,
+    commented_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (post_id) REFERENCES posts(post_id),
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- Insert minimal 3 data komentar
+INSERT INTO comments (post_id, user_id, comment_text) VALUES
+(1, 2, 'Great tutorial! Very helpful for beginners.'),
+(1, 3, 'Thanks for sharing this. It cleared up a lot of confusion.'),
+(2, 1, 'Interesting review. I enjoyed reading your thoughts.');
+
+SELECT u.username, p.full_name, p.bio
+FROM users u
+JOIN profiles p ON u.id = p.user_id;
+
+SELECT po.title, po.content, c.comment_text
+FROM posts po
+LEFT JOIN comments c ON po.post_id = c.post_id
